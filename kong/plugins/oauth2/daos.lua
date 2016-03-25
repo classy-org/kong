@@ -16,6 +16,18 @@ local function generate_refresh_token(v, t, column)
   return true
 end
 
+local function validate_uris(v, t, column)
+  if v and type(v) == "table" then
+    for _, uri in ipairs(v) do
+      local parsed_uri = require("socket.url").parse(uri)
+      if not (parsed_uri and parsed_uri.host and parsed_uri.scheme) then
+        return false, "cannot parse '"..uri.."'"
+      end
+    end
+  end
+  return true, nil
+end
+
 local OAUTH2_CREDENTIALS_SCHEMA = {
   primary_key = {"id"},
   fields = {
@@ -24,7 +36,7 @@ local OAUTH2_CREDENTIALS_SCHEMA = {
     name = { type = "string", required = true },
     client_id = { type = "string", required = false, unique = true, queryable = true, func = generate_if_missing },
     client_secret = { type = "string", required = false, unique = true, func = generate_if_missing },
-    redirect_uri = { type = "url", required = true },
+    redirect_uri = { type = "array", func = validate_uris, required = true },
     created_at = { type = "timestamp", immutable = true, dao_insert_value = true }
   },
   marshall_event = function(self, t)
