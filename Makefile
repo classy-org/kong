@@ -52,7 +52,7 @@ test-integration:
 	@busted -v spec/integration
 
 test-plugins:
-	@busted -v spec/plugins
+	@busted -v --no-keep-going spec/plugins/oauth2
 
 test-all:
 	@busted -v spec/
