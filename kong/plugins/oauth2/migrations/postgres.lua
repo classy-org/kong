@@ -1,4 +1,5 @@
 local plugin_config_iterator = require("kong.dao.migrations.helpers").plugin_config_iterator
+local log = require("kong.cmd.utils.log")
 
 return {
   {
@@ -103,7 +104,13 @@ return {
       if err then
         return err
       end
+      local todo = 0
+      local current = 0
+      for _ in pairs(apps) do todo = todo + 1 end
+      log("%d rows to update", todo)
       for _, app in ipairs(apps) do
+        current = current + 1
+        log("Updating row #%d of %d", current, todo)
         local redirect_uri = {};
         redirect_uri[1] = app.redirect_uri
         local redirect_uri_str = json.encode(redirect_uri)
@@ -112,6 +119,7 @@ return {
         if err then
           return err
         end
+
       end
       schema.fields.redirect_uri.type = "array"
     end,

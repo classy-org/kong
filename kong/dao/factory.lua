@@ -409,6 +409,7 @@ local function migrate(self, identifier, migrations_modules, cur_migrations, on_
 
   for _, migration in ipairs(to_run) do
     local err
+    log("Running migration %s", migration.name)
     local mig_type = type(migration.up)
     if mig_type == "string" then
       err = self.db:queries(migration.up)

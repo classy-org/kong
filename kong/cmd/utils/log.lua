@@ -54,9 +54,7 @@ function _M.log(lvl, ...)
     if type(format) ~= "string" then
       error("expected argument #1 or #2 to be a string", 3)
     end
-
-    local msg = string.format(format, unpack(args))
-
+    local msg = os.date("%x %X", os.time()) .. " - " .. string.format(format, unpack(args))
     if not ngx.IS_CLI then
       local ngx_lvl = _NGX_LEVELS[lvl]
       if ngx_lvl then
