@@ -110,16 +110,21 @@ return {
       log("%d rows to update", todo)
       for _, app in ipairs(apps) do
         current = current + 1
-        log("Updating row #%d of %d", current, todo)
-        local redirect_uri = {};
-        redirect_uri[1] = app.redirect_uri
-        local redirect_uri_str = json.encode(redirect_uri)
-        local req = "UPDATE oauth2_credentials SET redirect_uri='" .. redirect_uri_str .. "' WHERE id='" .. app.id .. "'"
-        local _, err = factory.oauth2_credentials.db:queries(req)
-        if err then
-          return err
+        if pcall(function () json.decode(app.redirect_uri) end) then
+          -- app.redirect_uri is already a valid json object. No need to serialize.
+          log("row #%d is already serialized", current)
+        else
+          -- app.redirect_uri is not a valid json object, must be a string.
+          log("Updating row #%d of %d", current, todo)
+          local redirect_uri = {};
+          redirect_uri[1] = app.redirect_uri
+          local redirect_uri_str = json.encode(redirect_uri)
+          local req = "UPDATE oauth2_credentials SET redirect_uri='" .. redirect_uri_str .. "' WHERE id='" .. app.id .. "'"
+          local _, err = factory.oauth2_credentials.db:queries(req)
+          if err then
+            return err
+          end
         end
-
       end
       schema.fields.redirect_uri.type = "array"
     end,
