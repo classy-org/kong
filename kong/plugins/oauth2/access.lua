@@ -450,18 +450,15 @@ end
 
 local function parse_access_token(conf)
   local found_in = {}
-  local result = retrieve_parameters()["access_token"]
-  if not result then
-    local authorization = ngx.req.get_headers()[conf.auth_header_name]
-    if authorization then
-      local parts = {}
-      for v in authorization:gmatch("%S+") do -- Split by space
-        table.insert(parts, v)
-      end
-      if #parts == 2 and (parts[1]:lower() == "token" or parts[1]:lower() == "bearer") then
-        result = parts[2]
-        found_in.authorization_header = true
-      end
+  local authorization = ngx.req.get_headers()[conf.auth_header_name]
+  if authorization then
+    local parts = {}
+    for v in authorization:gmatch("%S+") do -- Split by space
+      table.insert(parts, v)
+    end
+    if #parts == 2 and (parts[1]:lower() == "token" or parts[1]:lower() == "bearer") then
+      result = parts[2]
+      found_in.authorization_header = true
     end
   end
 
